@@ -1,25 +1,66 @@
 {
   "name": "unocss-variants",
   "type": "module",
+  "version": "1.0.0-alpha.1",
   "packageManager": "pnpm@10.4.1",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/praburangki/unocss-variants"
+  },
+  "bugs": {
+    "url": "https://github.com/praburangki/unocss-variants/issues"
+  },
+  "sideEffects": false,
+  "main": "dist/index.cjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "LICENSE",
+    "README.md",
+    "dist"
+  ],
   "scripts": {
+    "build": "tsup && node copy-types.cjs",
     "prepare": "pnpm simple-git-hooks",
+    "prepack": "clean-package",
+    "postpack": "clean-package restore",
     "test": "vitest"
   },
+  "dependencies": {
+    "@vinicunca/perkakas": "^1.3.0",
+    "defu": "^6.1.4"
+  },
   "devDependencies": {
-    "@commitlint/cli": "catalog:",
-    "@commitlint/config-conventional": "catalog:",
-    "@types/node": "catalog:",
-    "@vinicunca/eslint-config": "catalog:",
-    "bumpp": "catalog:",
-    "eslint": "catalog:",
-    "lint-staged": "catalog:",
-    "simple-git-hooks": "catalog:",
-    "taze": "catalog:",
-    "typescript": "catalog:",
+    "@commitlint/cli": "^19.7.1",
+    "@commitlint/config-conventional": "^19.7.1",
+    "@types/node": "^22.13.4",
+    "@vinicunca/eslint-config": "^3.3.0",
+    "bumpp": "^10.0.3",
+    "clean-package": "^2.2.0",
+    "eslint": "^9.20.1",
+    "lint-staged": "^15.4.3",
+    "simple-git-hooks": "^2.11.1",
+    "taze": "^18.5.0",
+    "tsup": "^8.4.0",
+    "typescript": "^5.7.3",
     "unocss": "^66.0.0",
     "vitest": "^3.0.6"
+  },
+  "tsup": {
+    "clean": true,
+    "minify": true,
+    "treeshake": true,
+    "entry": [
+      "src/*.js"
+    ],
+    "target": "es2019",
+    "format": [
+      "cjs",
+      "esm"
+    ]
   },
   "commitlint": {
     "extends": [
@@ -32,8 +73,5 @@
   },
   "lint-staged": {
     "*": "eslint --fix"
-  },
-  "dependencies": {
-    "@vinicunca/perkakas": "^1.3.0"
   }
 }

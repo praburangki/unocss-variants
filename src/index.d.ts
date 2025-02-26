@@ -31,7 +31,7 @@ export interface UvConfig<
 export type ClassValue = ClassNameArray | string | null | undefined | 0 | 0n | false;
 type ClassNameArray = Array<ClassValue>;
 
-export type ClassProp<V extends ClassValue> =
+export type ClassProp<V = ClassValue> =
   | { class?: V; className?: never }
   | { class?: never; className?: V };
 
@@ -238,6 +238,62 @@ export type UvReturnType<
     : string;
 } & UvReturnProps<V, S, B, EV, ES, E>;
 
+export interface UvOptions<
+  V extends UvVariants<S, B, EV>,
+  CV extends UvCompoundVariants<V, S, B, EV, ES>,
+  DV extends UvDefaultVariants<V, S, EV, ES>,
+  C extends UvConfig<V, EV>,
+  B extends ClassValue = undefined,
+  S extends UvSlots = undefined,
+  // @ts-expect-error amount of generics
+  E extends UvReturnType = UvReturnType<
+    V,
+    S,
+    B,
+    C,
+    // @ts-expect-error amount of generics
+    EV extends undefined ? {} : EV,
+    // @ts-expect-error amount of generics
+    ES extends undefined ? {} : ES
+  >,
+  EV extends UvVariants<ES, B, E['variants'], ES> = E['variants'],
+  ES extends UvSlots = E['slots'] extends UvSlots ? E['slots'] : undefined,
+> {
+  /**
+   * Extend allows for easy composition of components.
+   * @see https://www.tailwind-variants.org/docs/composing-components
+   */
+  extend?: E;
+  /**
+   * Base allows you to set a base class for a component.
+   */
+  base?: B;
+  /**
+   * Slots allow you to separate a component into multiple parts.
+   * @see https://www.tailwind-variants.org/docs/slots
+   */
+  slots?: S;
+  /**
+   * Variants allow you to create multiple versions of the same component.
+   * @see https://www.tailwind-variants.org/docs/variants#adding-variants
+   */
+  variants?: V;
+  /**
+   * Compound variants allow you to apply classes to multiple variants at once.
+   * @see https://www.tailwind-variants.org/docs/variants#compound-variants
+   */
+  compoundVariants?: CV;
+  /**
+   * Compound slots allow you to apply classes to multiple slots at once.
+   */
+  compoundSlots?: UvCompoundSlots<V, S, B>;
+  /**
+   * Default variants allow you to set default variants for a component.
+   * @see https://www.tailwind-variants.org/docs/variants#default-variants
+   */
+  defaultVariants?: DV;
+}
+
 export interface Uv {
   <
     V extends UvVariants<S, B, EV>,
@@ -260,41 +316,11 @@ export interface Uv {
     EV extends UvVariants<ES, B, E['variants'], ES> = E['variants'],
     ES extends UvSlots = E['slots'] extends UvSlots ? E['slots'] : undefined,
   >(
-    options: {
-      /**
-       * Extend allows for easy composition of components.
-       * @see https://www.tailwind-variants.org/docs/composing-components
-       */
-      extend?: E;
-      /**
-       * Base allows you to set a base class for a component.
-       */
-      base?: B;
-      /**
-       * Slots allow you to separate a component into multiple parts.
-       * @see https://www.tailwind-variants.org/docs/slots
-       */
-      slots?: S;
-      /**
-       * Variants allow you to create multiple versions of the same component.
-       * @see https://www.tailwind-variants.org/docs/variants#adding-variants
-       */
-      variants?: V;
-      /**
-       * Compound variants allow you to apply classes to multiple variants at once.
-       * @see https://www.tailwind-variants.org/docs/variants#compound-variants
-       */
-      compoundVariants?: CV;
-      /**
-       * Compound slots allow you to apply classes to multiple slots at once.
-       */
-      compoundSlots?: UvCompoundSlots<V, S, B>;
-      /**
-       * Default variants allow you to set default variants for a component.
-       * @see https://www.tailwind-variants.org/docs/variants#default-variants
-       */
-      defaultVariants?: DV;
-    },
+    /**
+     * The options object allows you to define the component.
+     * @see https://www.tailwind-variants.org/docs/api-reference#options
+     */
+    options: UvOptions<V, CV, DV, C, B, S, E, EV, ES>,
     /**
      * The config object allows you to modify the default configuration.
      * @see https://www.tailwind-variants.org/docs/api-reference#config-optional
@@ -325,41 +351,11 @@ export interface CreateUv<RV extends UvConfig['responsiveVariants'] = undefined>
     EV extends UvVariants<ES, B, E['variants'], ES> = E['variants'],
     ES extends UvSlots = E['slots'] extends UvSlots ? E['slots'] : undefined,
   >(
-    options: {
-      /**
-       * Extend allows for easy composition of components.
-       * @see https://www.tailwind-variants.org/docs/composing-components
-       */
-      extend?: E;
-      /**
-       * Base allows you to set a base class for a component.
-       */
-      base?: B;
-      /**
-       * Slots allow you to separate a component into multiple parts.
-       * @see https://www.tailwind-variants.org/docs/slots
-       */
-      slots?: S;
-      /**
-       * Variants allow you to create multiple versions of the same component.
-       * @see https://www.tailwind-variants.org/docs/variants#adding-variants
-       */
-      variants?: V;
-      /**
-       * Compound variants allow you to apply classes to multiple variants at once.
-       * @see https://www.tailwind-variants.org/docs/variants#compound-variants
-       */
-      compoundVariants?: CV;
-      /**
-       * Compound slots allow you to apply classes to multiple slots at once.
-       */
-      compoundSlots?: UvCompoundSlots<V, S, B>;
-      /**
-       * Default variants allow you to set default variants for a component.
-       * @see https://www.tailwind-variants.org/docs/variants#default-variants
-       */
-      defaultVariants?: DV;
-    },
+    /**
+     * The options object allows you to define the component.
+     * @see https://www.tailwind-variants.org/docs/api-reference#options
+     */
+    options: UvOptions<V, CV, DV, C, B, S, E, EV, ES>,
     /**
      * The config object allows you to modify the default configuration.
      * @see https://www.tailwind-variants.org/docs/api-reference#config-optional
