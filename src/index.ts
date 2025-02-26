@@ -1,28 +1,33 @@
-import type { ClassValue, Uv } from './types';
-import { isEmpty, mergeDeep } from '@vinicunca/perkakas';
-import { falsyToString, flatArray, flatMergeArrays, isEmptyObject, mergeObjects, removeExtraSpaces } from './utils';
+import { isEmpty, isObjectType, isString } from '@vinicunca/perkakas';
+import {
+  falsyToString,
+  flatArray,
+  flatMergeArrays,
+  mergeObjects,
+  removeExtraSpaces,
+} from './utils';
 
 export const defaultConfig = {
   responsiveVariants: false,
 };
 
-export const voidEmpty = (value) => (value || undefined);
-
-export const cnBase = (...classes) => voidEmpty(flatArray(classes).filter(Boolean).join(' '));
+export function cnBase(...classes) {
+  return (flatArray(classes).filter(Boolean).join(' ')) || undefined;
+}
 
 function joinObjects(obj1, obj2) {
-  for (const key in obj2) {
-    if (obj1.hasOwnProperty(key)) {
+  for (const key of Object.keys(obj2)) {
+    if (Object.prototype.hasOwnProperty.call(obj1, key)) {
       obj1[key] = cnBase(obj1[key], obj2[key]);
     } else {
       obj1[key] = obj2[key];
     }
-  }
+  };
 
   return obj1;
 }
 
-export const uv: Uv = (options, configProp) => {
+export function uv(options, configProp) {
   const {
     extend = null,
     slots: slotProps = {},
@@ -35,17 +40,15 @@ export const uv: Uv = (options, configProp) => {
   const config = { ...defaultConfig, ...configProp };
 
   const base = extend?.base ? cnBase(extend.base, options?.base) : options?.base;
-  const variants
-    = extend?.variants && !isEmptyObject(extend.variants)
-      ? mergeObjects(variantsProps, extend.variants)
-      : variantsProps;
-  const defaultVariants
-    = extend?.defaultVariants && !isEmptyObject(extend.defaultVariants)
-      ? { ...extend.defaultVariants, ...defaultVariantsProps }
-      : defaultVariantsProps;
+  const variants = extend?.variants && !isEmpty(extend.variants)
+    ? mergeObjects(variantsProps, extend.variants)
+    : variantsProps;
+  const defaultVariants = extend?.defaultVariants && !isEmpty(extend.defaultVariants)
+    ? { ...extend.defaultVariants, ...defaultVariantsProps }
+    : defaultVariantsProps;
 
-  const isExtendedSlotsEmpty = isEmptyObject(extend?.slots);
-  const componentSlots = !isEmptyObject(slotProps)
+  const isExtendedSlotsEmpty = isEmpty(extend?.slots);
+  const componentSlots = !isEmpty(slotProps)
     ? {
         // add "base" to the slots object
         base: cnBase(options?.base, isExtendedSlotsEmpty && extend?.base),
@@ -58,16 +61,17 @@ export const uv: Uv = (options, configProp) => {
     ? componentSlots
     : joinObjects(
         { ...extend?.slots },
-        isEmptyObject(componentSlots) ? { base: options?.base } : componentSlots,
+        // eslint-disable-next-line sonar/no-nested-conditional
+        isEmpty(componentSlots) ? { base: options?.base } : componentSlots,
       );
 
   // merge compoundVariants with the "extended" compoundVariants
-  const compoundVariants = isEmptyObject(extend?.compoundVariants)
+  const compoundVariants = isEmpty(extend?.compoundVariants)
     ? compoundVariantsProps
     : flatMergeArrays(extend?.compoundVariants, compoundVariantsProps);
 
   const component = (props) => {
-    if (isEmptyObject(variants) && isEmptyObject(slotProps) && isExtendedSlotsEmpty) {
+    if (isEmpty(variants) && isEmpty(slotProps) && isExtendedSlotsEmpty) {
       return cnBase(base, props?.class, props?.className);
     }
 
@@ -86,7 +90,7 @@ export const uv: Uv = (options, configProp) => {
     const getScreenVariantValues = (screen, screenVariantValue, acc = [], slotKey) => {
       let result = acc;
 
-      if (typeof screenVariantValue === 'string') {
+      if (isString(screenVariantValue)) {
         result = result.concat(
           removeExtraSpaces(screenVariantValue)
             .split(' ')
@@ -98,16 +102,16 @@ export const uv: Uv = (options, configProp) => {
             return acc.concat(`${screen}:${v}`);
           }, []),
         );
-      } else if (typeof screenVariantValue === 'object' && typeof slotKey === 'string') {
-        for (const key in screenVariantValue) {
-          if (screenVariantValue.hasOwnProperty(key) && key === slotKey) {
+      } else if (isObjectType(screenVariantValue) && isString(slotKey)) {
+        for (const key of Object.keys(screenVariantValue)) {
+          if (Object.prototype.hasOwnProperty.call(screenVariantValue, key) && key === slotKey) {
             const value = screenVariantValue[key];
 
-            if (value && typeof value === 'string') {
+            if (value && isString(value)) {
               const fixedValue = removeExtraSpaces(value);
 
               if (result[slotKey]) {
-                result[slotKey] = result[slotKey].concat(
+                result[slotKey] = (result[slotKey]).concat(
                   fixedValue.split(' ').map((v) => `${screen}:${v}`),
                 );
               } else {
@@ -128,7 +132,7 @@ export const uv: Uv = (options, configProp) => {
     const getVariantValue = (variant, vrs = variants, slotKey = null, slotProps = null) => {
       const variantObj = vrs[variant];
 
-      if (!variantObj || isEmptyObject(variantObj)) {
+      if (!variantObj || isEmpty(variantObj)) {
         return null;
       }
 
@@ -141,14 +145,14 @@ export const uv: Uv = (options, configProp) => {
       const variantKey = falsyToString(variantProp);
 
       // responsive variants
-      const responsiveVarsEnabled
-          = (Array.isArray(config.responsiveVariants) && config.responsiveVariants.length > 0)
-            || config.responsiveVariants === true;
+      const responsiveVarsEnabled = (
+        Array.isArray(config.responsiveVariants) && config.responsiveVariants.length > 0
+      ) || config.responsiveVariants === true;
 
       let defaultVariantProp = defaultVariants?.[variant];
       let screenValues = [];
 
-      if (typeof variantKey === 'object' && responsiveVarsEnabled) {
+      if (isObjectType(variantKey) && responsiveVarsEnabled) {
         for (const [screen, screenVariantKey] of Object.entries(variantKey)) {
           const screenVariantValue = variantObj[screenVariantKey];
 
@@ -171,16 +175,15 @@ export const uv: Uv = (options, configProp) => {
 
       // If there is a variant key and it's not an object (screen variants),
       // we use the variant key and ignore the default variant.
-      const key
-          = variantKey != null && typeof variantKey != 'object'
-            ? variantKey
-            : falsyToString(defaultVariantProp);
+      const key = variantKey != null && !isObjectType(variantKey)
+        ? variantKey
+        : falsyToString(defaultVariantProp);
 
       const value = variantObj[key || 'false'];
 
       if (
-        typeof screenValues === 'object'
-        && typeof slotKey === 'string'
+        isObjectType(screenValues)
+        && isString(slotKey)
         && screenValues[slotKey]
       ) {
         return joinObjects(screenValues, value);
@@ -208,19 +211,18 @@ export const uv: Uv = (options, configProp) => {
     };
 
     const getVariantClassNamesBySlotKey = (slotKey, slotProps) => {
-      if (!variants || typeof variants !== 'object') {
+      if (!variants || !isObjectType(variants)) {
         return null;
       }
 
       const result = [];
 
-      for (const variant in variants) {
+      for (const variant of Object.keys(variants)) {
         const variantValue = getVariantValue(variant, variants, slotKey, slotProps);
 
-        const value
-            = slotKey === 'base' && typeof variantValue === 'string'
-              ? variantValue
-              : variantValue && variantValue[slotKey];
+        const value = slotKey === 'base' && isString(variantValue)
+          ? variantValue
+          : variantValue && variantValue[slotKey];
 
         if (value) {
           result[result.length] = value;
@@ -232,6 +234,7 @@ export const uv: Uv = (options, configProp) => {
 
     const propsWithoutUndefined = {};
 
+    // eslint-disable-next-line no-restricted-syntax
     for (const prop in props) {
       if (props[prop] !== undefined) {
         propsWithoutUndefined[prop] = props[prop];
@@ -240,11 +243,11 @@ export const uv: Uv = (options, configProp) => {
 
     const getCompleteProps = (key, slotProps) => {
       const initialProp
-          = typeof props?.[key] === 'object'
-            ? {
-                [key]: props[key]?.initial,
-              }
-            : {};
+        = isObjectType(props?.[key])
+          ? {
+              [key]: props[key]?.initial,
+            }
+          : {};
 
       return {
         ...defaultVariants,
@@ -257,7 +260,7 @@ export const uv: Uv = (options, configProp) => {
     const getCompoundVariantsValue = (cv = [], slotProps) => {
       const result = [];
 
-      for (const { class: tvClass, className: tvClassName, ...compoundVariantOptions } of cv) {
+      for (const { class: uvClass, className: uvClassName, ...compoundVariantOptions } of cv) {
         let isValid = true;
 
         for (const [key, value] of Object.entries(compoundVariantOptions)) {
@@ -283,8 +286,8 @@ export const uv: Uv = (options, configProp) => {
         }
 
         if (isValid) {
-          tvClass && result.push(tvClass);
-          tvClassName && result.push(tvClassName);
+          uvClass && result.push(uvClass);
+          uvClassName && result.push(uvClassName);
         }
       }
 
@@ -301,11 +304,11 @@ export const uv: Uv = (options, configProp) => {
       const result = {};
 
       for (const className of compoundClassNames) {
-        if (typeof className === 'string') {
+        if (isString(className)) {
           result.base = cnBase(result.base, className);
         }
 
-        if (typeof className === 'object') {
+        if (isObjectType(className)) {
           for (const [slot, slotClassName] of Object.entries(className)) {
             result[slot] = cnBase(result[slot], slotClassName);
           }
@@ -328,7 +331,7 @@ export const uv: Uv = (options, configProp) => {
         className: slotClassName,
         ...slotVariants
       } of compoundSlots) {
-        if (!isEmptyObject(slotVariants)) {
+        if (!isEmpty(slotVariants)) {
           let isValid = true;
 
           for (const key of Object.keys(slotVariants)) {
@@ -360,10 +363,10 @@ export const uv: Uv = (options, configProp) => {
     };
 
     // with slots
-    if (!isEmptyObject(slotProps) || !isExtendedSlotsEmpty) {
+    if (!isEmpty(slotProps) || !isExtendedSlotsEmpty) {
       const slotsFns = {};
 
-      if (typeof slots === 'object' && !isEmptyObject(slots)) {
+      if (isObjectType(slots) && !isEmpty(slots)) {
         for (const slotKey of Object.keys(slots)) {
           slotsFns[slotKey] = (slotProps) =>
             cnBase(
@@ -391,7 +394,7 @@ export const uv: Uv = (options, configProp) => {
   };
 
   const getVariantKeys = () => {
-    if (!variants || typeof variants !== 'object') {
+    if (!variants || !isObjectType(variants)) {
       return;
     }
 
@@ -408,8 +411,8 @@ export const uv: Uv = (options, configProp) => {
   component.compoundVariants = compoundVariants;
 
   return component;
-};
+}
 
-function mergeClasses(...classes: Array<ClassValue>): string | undefined {
-  return classes.filter(Boolean).join(' ');
+export function createUv(configProp = {}) {
+  return (options, config = {}) => uv(options, config ? mergeObjects(configProp, config) : configProp);
 }

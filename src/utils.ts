@@ -1,14 +1,12 @@
+import { isBoolean } from '@vinicunca/perkakas';
+
 export function falsyToString(value) {
-  return typeof value === 'boolean' ? `${value}` : value === 0 ? '0' : value;
+  if (isBoolean(value)) {
+    return `${value}`;
+  }
+
+  return value === 0 ? '0' : value;
 }
-
-export function isEmptyObject(obj) {
-  return !obj || typeof obj !== 'object' || Object.keys(obj).length === 0;
-}
-
-export const isEqual = (obj1, obj2) => JSON.stringify(obj1) === JSON.stringify(obj2);
-
-export const isBoolean = (value) => typeof value === 'boolean';
 
 function flat(arr, target) {
   arr.forEach((el) => {

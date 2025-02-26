@@ -1,4 +1,4 @@
-import { cnBase, uv } from '..';
+import { cnBase, uv } from '../index';
 
 describe('unocss variants (uv) - Default', () => {
   it('should work with nested arrays', () => {
