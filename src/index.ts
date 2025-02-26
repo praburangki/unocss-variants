@@ -1,6 +1,6 @@
 import type { ClassValue, Uv } from './types';
 import { isEmpty, mergeDeep } from '@vinicunca/perkakas';
-import { falsyToString, flatArray, flatMergeArrays, isEmptyObject, mergeObjects } from './utils';
+import { falsyToString, flatArray, flatMergeArrays, isEmptyObject, mergeObjects, removeExtraSpaces } from './utils';
 
 export const defaultConfig = {
   responsiveVariants: false,
