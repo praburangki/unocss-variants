@@ -1,0 +1,39 @@
+{
+  "name": "unocss-variants",
+  "type": "module",
+  "packageManager": "pnpm@10.4.1",
+  "license": "MIT",
+  "scripts": {
+    "prepare": "pnpm simple-git-hooks",
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "catalog:",
+    "@commitlint/config-conventional": "catalog:",
+    "@types/node": "catalog:",
+    "@vinicunca/eslint-config": "catalog:",
+    "bumpp": "catalog:",
+    "eslint": "catalog:",
+    "lint-staged": "catalog:",
+    "simple-git-hooks": "catalog:",
+    "taze": "catalog:",
+    "typescript": "catalog:",
+    "unocss": "^66.0.0",
+    "vitest": "^3.0.6"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged",
+    "commit-msg": "pnpm commitlint --edit ${1}"
+  },
+  "lint-staged": {
+    "*": "eslint --fix"
+  },
+  "dependencies": {
+    "@vinicunca/perkakas": "^1.3.0"
+  }
+}
