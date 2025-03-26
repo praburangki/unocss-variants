@@ -12,7 +12,11 @@ export const defaultConfig = {
 };
 
 export function cnBase(...classes) {
-  return (flatArray(classes).filter(Boolean).join(' ')) || undefined;
+  return removeExtraSpaces(
+    (
+      flatArray(classes).filter(Boolean).join(' ')
+    ) || undefined,
+  );
 }
 
 function joinObjects(obj1, obj2) {
