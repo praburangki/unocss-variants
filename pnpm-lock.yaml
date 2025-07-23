@@ -11,9 +11,6 @@ importers:
       '@vinicunca/perkakas':
         specifier: ^1.7.0
         version: 1.7.0
-      defu:
-        specifier: ^6.1.4
-        version: 6.1.4
     devDependencies:
       '@commitlint/cli':
         specifier: ^19.8.1

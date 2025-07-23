@@ -15,6 +15,5 @@ export default defineConfig({
   treeshake: true,
   noExternal: [
     '@vinicunca/perkakas',
-    'defu',
   ],
 });

@@ -1,8 +1,6 @@
-import { isEmpty, isObjectType, isString } from '@vinicunca/perkakas';
+import { flat, isEmpty, isObjectType, isString } from '@vinicunca/perkakas';
 import {
   falsyToString,
-  flatArray,
-  flatMergeArrays,
   mergeObjects,
   removeExtraSpaces,
 } from './utils';
@@ -14,7 +12,7 @@ export const defaultConfig = {
 export function cnBase(...classes) {
   return removeExtraSpaces(
     (
-      flatArray(classes).filter(Boolean).join(' ')
+      flat(classes, 100).filter(Boolean).join(' ')
     ) || undefined,
   );
 }
@@ -70,7 +68,7 @@ export function uv(options) {
   // merge compoundVariants with the "extended" compoundVariants
   const compoundVariants = isEmpty(extend?.compoundVariants)
     ? compoundVariantsProps
-    : flatMergeArrays(extend?.compoundVariants, compoundVariantsProps);
+    : flat([extend?.compoundVariants, compoundVariantsProps], 100);
 
   const component = (props) => {
     if (isEmpty(variants) && isEmpty(slotProps) && isExtendedSlotsEmpty) {
@@ -324,6 +322,8 @@ export function uv(options) {
   component.defaultVariants = defaultVariants;
   component.compoundSlots = compoundSlots;
   component.compoundVariants = compoundVariants;
+
+  // console.log('🚀 ~ uv ~ component:', component);
 
   return component;
 }
