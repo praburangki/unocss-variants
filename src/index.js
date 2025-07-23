@@ -31,7 +31,7 @@ function joinObjects(obj1, obj2) {
   return obj1;
 }
 
-export function uv(options, configProp) {
+export function uv(options) {
   const {
     extend = null,
     slots: slotProps = {},
@@ -40,8 +40,6 @@ export function uv(options, configProp) {
     compoundSlots = [],
     defaultVariants: defaultVariantsProps = {},
   } = options;
-
-  const config = { ...defaultConfig, ...configProp };
 
   const base = extend?.base ? cnBase(extend.base, options?.base) : options?.base;
   const variants = extend?.variants && !isEmpty(extend.variants)
@@ -91,49 +89,7 @@ export function uv(options, configProp) {
       );
     }
 
-    const getScreenVariantValues = (screen, screenVariantValue, acc = [], slotKey) => {
-      let result = acc;
-
-      if (isString(screenVariantValue)) {
-        result = result.concat(
-          removeExtraSpaces(screenVariantValue)
-            .split(' ')
-            .map((v) => `${screen}:${v}`),
-        );
-      } else if (Array.isArray(screenVariantValue)) {
-        result = result.concat(
-          screenVariantValue.reduce((acc, v) => {
-            return acc.concat(`${screen}:${v}`);
-          }, []),
-        );
-      } else if (isObjectType(screenVariantValue) && isString(slotKey)) {
-        for (const key of Object.keys(screenVariantValue)) {
-          if (Object.prototype.hasOwnProperty.call(screenVariantValue, key) && key === slotKey) {
-            const value = screenVariantValue[key];
-
-            if (value && isString(value)) {
-              const fixedValue = removeExtraSpaces(value);
-
-              if (result[slotKey]) {
-                result[slotKey] = (result[slotKey]).concat(
-                  fixedValue.split(' ').map((v) => `${screen}:${v}`),
-                );
-              } else {
-                result[slotKey] = fixedValue.split(' ').map((v) => `${screen}:${v}`);
-              }
-            } else if (Array.isArray(value) && value.length > 0) {
-              result[slotKey] = value.reduce((acc, v) => {
-                return acc.concat(`${screen}:${v}`);
-              }, []);
-            }
-          }
-        }
-      }
-
-      return result;
-    };
-
-    const getVariantValue = (variant, vrs = variants, slotKey = null, slotProps = null) => {
+    const getVariantValue = (variant, vrs = variants, slotProps = null) => {
       const variantObj = vrs[variant];
 
       if (!variantObj || isEmpty(variantObj)) {
@@ -148,60 +104,15 @@ export function uv(options, configProp) {
 
       const variantKey = falsyToString(variantProp);
 
-      // responsive variants
-      const responsiveVarsEnabled = (
-        Array.isArray(config.responsiveVariants) && config.responsiveVariants.length > 0
-      ) || config.responsiveVariants === true;
+      const defaultVariantProp = defaultVariants?.[variant];
 
-      let defaultVariantProp = defaultVariants?.[variant];
-      let screenValues = [];
-
-      if (isObjectType(variantKey) && responsiveVarsEnabled) {
-        for (const [screen, screenVariantKey] of Object.entries(variantKey)) {
-          const screenVariantValue = variantObj[screenVariantKey];
-
-          if (screen === 'initial') {
-            defaultVariantProp = screenVariantKey;
-            continue;
-          }
-
-          // if the screen is not in the responsiveVariants array, skip it
-          if (
-            Array.isArray(config.responsiveVariants)
-            && !config.responsiveVariants.includes(screen)
-          ) {
-            continue;
-          }
-
-          screenValues = getScreenVariantValues(screen, screenVariantValue, screenValues, slotKey);
-        }
-      }
-
-      // If there is a variant key and it's not an object (screen variants),
+      // If there is a variant key and it's not an object,
       // we use the variant key and ignore the default variant.
       const key = variantKey != null && !isObjectType(variantKey)
         ? variantKey
         : falsyToString(defaultVariantProp);
 
       const value = variantObj[key || 'false'];
-
-      if (
-        isObjectType(screenValues)
-        && isString(slotKey)
-        && screenValues[slotKey]
-      ) {
-        return joinObjects(screenValues, value);
-      }
-
-      if (screenValues.length > 0) {
-        screenValues.push(value);
-
-        if (slotKey === 'base') {
-          return screenValues.join(' ');
-        }
-
-        return screenValues;
-      }
 
       return value;
     };
@@ -222,7 +133,7 @@ export function uv(options, configProp) {
       const result = [];
 
       for (const variant of Object.keys(variants)) {
-        const variantValue = getVariantValue(variant, variants, slotKey, slotProps);
+        const variantValue = getVariantValue(variant, variants, slotProps);
 
         const value = slotKey === 'base' && isString(variantValue)
           ? variantValue
@@ -417,6 +328,6 @@ export function uv(options, configProp) {
   return component;
 }
 
-export function createUv(configProp = {}) {
-  return (options, config = {}) => uv(options, config ? mergeObjects(configProp, config) : configProp);
+export function createUv() {
+  return (options) => uv(options);
 }
