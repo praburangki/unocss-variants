@@ -1,29 +1,5 @@
 /**
  * ----------------------------------------
- * Config Types
- * ----------------------------------------
- */
-type UvGeneratedScreens = 'sm' | 'md' | 'lg' | 'xl' | '2xl';
-
-export interface UvConfig<
-  // @ts-expect-error amount of generics
-  V extends UvVariants | undefined = undefined,
-  // @ts-expect-error amount of generics
-  EV extends UvVariants | undefined = undefined,
-> {
-  /**
-   * Whether to enable responsive variant transform.
-   * Which variants or screens(breakpoints) for responsive variant transform.
-   * @default false
-   */
-  responsiveVariants?:
-    | boolean
-    | Array<UvGeneratedScreens>
-    | { [K in keyof V | keyof EV]?: boolean | Array<UvGeneratedScreens> };
-}
-
-/**
- * ----------------------------------------
  * Base Types
  * ----------------------------------------
  */
@@ -31,13 +7,13 @@ export interface UvConfig<
 export type ClassValue = ClassNameArray | string | null | undefined | 0 | 0n | false;
 type ClassNameArray = Array<ClassValue>;
 
-export type ClassProp<V = ClassValue> =
-  | { class?: V; className?: never }
-  | { class?: never; className?: V };
+export type ClassProp<V = ClassValue>
+  = | { class?: V; className?: never }
+    | { class?: never; className?: V };
 
 type UvBaseName = 'base';
 
-type UvScreens = 'initial' | UvGeneratedScreens;
+type UvScreens = 'initial';
 
 type UvSlots = Record<string, ClassValue> | undefined;
 
@@ -91,15 +67,14 @@ export type UvVariants<
   ES extends UvSlots | undefined = undefined,
 > = EV extends undefined
   ? UvVariantsDefault<S, B>
-  :
-    | {
-      [K in keyof EV]: {
-        [K2 in keyof EV[K]]: S extends UvSlots
-          ? SlotsClassValue<S, B> | ClassValue
-          : ClassValue;
-      };
-    }
-    | UvVariantsDefault<S, B>;
+  : | {
+    [K in keyof EV]: {
+      [K2 in keyof EV[K]]: S extends UvSlots
+        ? SlotsClassValue<S, B> | ClassValue
+        : ClassValue;
+    };
+  }
+  | UvVariantsDefault<S, B>;
 
 export type UvCompoundVariants<
   V extends UvVariants<S>,
@@ -145,44 +120,28 @@ export type UvScreenPropsValue<
   V extends UvVariants<S>,
   S extends UvSlots,
   K extends keyof V,
-  C extends UvConfig,
-> = C['responsiveVariants'] extends Array<string>
-  ? {
-      [Screen in WithInitialScreen<C['responsiveVariants']>[number]]?: StringToBoolean<keyof V[K]>;
-    }
-  : {
-      [Screen in UvScreens]?: StringToBoolean<keyof V[K]>;
-    };
+> = {
+  [Screen in UvScreens]?: StringToBoolean<keyof V[K]>;
+};
 
 export type UvProps<
   V extends UvVariants<S>,
   S extends UvSlots,
-  C extends UvConfig<V, EV>,
   EV extends UvVariants<ES>,
   ES extends UvSlots,
 > = EV extends undefined
   ? V extends undefined
     ? ClassProp<ClassValue>
     : {
-      [K in keyof V]?: isTrueOrArray<C['responsiveVariants']> extends true
-        ? StringToBoolean<keyof V[K]> | UvScreenPropsValue<V, S, K, C> | undefined
-        : StringToBoolean<keyof V[K]> | undefined;
+      [K in keyof V]?: StringToBoolean<keyof V[K]> | undefined;
     } & ClassProp<ClassValue>
   : V extends undefined ? {
-    [K in keyof EV]?: isTrueOrArray<C['responsiveVariants']> extends true
-      ? StringToBoolean<keyof EV[K]> | UvScreenPropsValue<EV, ES, K, C> | undefined
-      : StringToBoolean<keyof EV[K]> | undefined;
+    [K in keyof EV]?: StringToBoolean<keyof EV[K]> | undefined;
   } & ClassProp<ClassValue> : {
-    [K in keyof V | keyof EV]?: isTrueOrArray<C['responsiveVariants']> extends true
-      ?
-              | (K extends keyof V ? StringToBoolean<keyof V[K]> : never)
-              | (K extends keyof EV ? StringToBoolean<keyof EV[K]> : never)
-              | UvScreenPropsValue<EV & V, S, K, C>
-              | undefined
-      :
-              | (K extends keyof V ? StringToBoolean<keyof V[K]> : never)
-              | (K extends keyof EV ? StringToBoolean<keyof EV[K]> : never)
-              | undefined;
+    [K in keyof V | keyof EV]?:
+      | (K extends keyof V ? StringToBoolean<keyof V[K]> : never)
+      | (K extends keyof EV ? StringToBoolean<keyof EV[K]> : never)
+      | undefined;
   } & ClassProp<ClassValue>;
 
 export type UvVariantKeys<V extends UvVariants<S>, S extends UvSlots> = V extends object
@@ -218,22 +177,19 @@ export type UvReturnType<
   V extends UvVariants<S>,
   S extends UvSlots,
   B extends ClassValue,
-  C extends UvConfig<V, EV>,
   EV extends UvVariants<ES>,
   ES extends UvSlots,
   // @ts-expect-error amount of generics
   E extends UvReturnType = undefined,
 > = {
-  (props?: UvProps<V, S, C, EV, ES>): HasSlots<S, ES> extends true ? {
+  (props?: UvProps<V, S, EV, ES>): HasSlots<S, ES> extends true ? {
     [K in keyof (ES extends undefined ? {} : ES)]: (
-      slotProps?: UvProps<V, S, C, EV, ES>,
+      slotProps?: UvProps<V, S, EV, ES>,
     ) => string;
   } & {
-    [K in keyof (S extends undefined ? {} : S)]: (
-      slotProps?: UvProps<V, S, C, EV, ES>,
-    ) => string;
+    [K in keyof (S extends undefined ? {} : S)]: (slotProps?: UvProps<V, S, EV, ES>) => string;
   } & {
-    [K in UvSlotsWithBase<{}, B>]: (slotProps?: UvProps<V, S, C, EV, ES>) => string;
+    [K in UvSlotsWithBase<{}, B>]: (slotProps?: UvProps<V, S, EV, ES>) => string;
   }
     : string;
 } & UvReturnProps<V, S, B, EV, ES, E>;
@@ -242,7 +198,6 @@ export interface UvOptions<
   V extends UvVariants<S, B, EV>,
   CV extends UvCompoundVariants<V, S, B, EV, ES>,
   DV extends UvDefaultVariants<V, S, EV, ES>,
-  C extends UvConfig<V, EV>,
   B extends ClassValue = undefined,
   S extends UvSlots = undefined,
   // @ts-expect-error amount of generics
@@ -250,7 +205,6 @@ export interface UvOptions<
     V,
     S,
     B,
-    C,
     // @ts-expect-error amount of generics
     EV extends undefined ? {} : EV,
     // @ts-expect-error amount of generics
@@ -299,7 +253,6 @@ export interface Uv {
     V extends UvVariants<S, B, EV>,
     CV extends UvCompoundVariants<V, S, B, EV, ES>,
     DV extends UvDefaultVariants<V, S, EV, ES>,
-    C extends UvConfig<V, EV>,
     B extends ClassValue = undefined,
     S extends UvSlots = undefined,
     // @ts-expect-error amount of generics
@@ -307,7 +260,6 @@ export interface Uv {
       V,
       S,
       B,
-      C,
       // @ts-expect-error amount of generics
       EV extends undefined ? {} : EV,
       // @ts-expect-error amount of generics
@@ -320,21 +272,15 @@ export interface Uv {
      * The options object allows you to define the component.
      * @see https://www.tailwind-variants.org/docs/api-reference#options
      */
-    options: UvOptions<V, CV, DV, C, B, S, E, EV, ES>,
-    /**
-     * The config object allows you to modify the default configuration.
-     * @see https://www.tailwind-variants.org/docs/api-reference#config-optional
-     */
-    config?: C,
-  ): UvReturnType<V, S, B, C, EV, ES, E>;
+    options: UvOptions<V, CV, DV, B, S, E, EV, ES>,
+  ): UvReturnType<V, S, B, EV, ES, E>;
 }
 
-export interface CreateUv<RV extends UvConfig['responsiveVariants'] = undefined> {
+export interface CreateUv {
   <
     V extends UvVariants<S, B, EV>,
     CV extends UvCompoundVariants<V, S, B, EV, ES>,
     DV extends UvDefaultVariants<V, S, EV, ES>,
-    C extends UvConfig<V, EV>,
     B extends ClassValue = undefined,
     S extends UvSlots = undefined,
     // @ts-expect-error amount of generics
@@ -342,7 +288,6 @@ export interface CreateUv<RV extends UvConfig['responsiveVariants'] = undefined>
       V,
       S,
       B,
-      C,
       // @ts-expect-error amount of generics
       EV extends undefined ? {} : EV,
       // @ts-expect-error amount of generics
@@ -355,23 +300,14 @@ export interface CreateUv<RV extends UvConfig['responsiveVariants'] = undefined>
      * The options object allows you to define the component.
      * @see https://www.tailwind-variants.org/docs/api-reference#options
      */
-    options: UvOptions<V, CV, DV, C, B, S, E, EV, ES>,
-    /**
-     * The config object allows you to modify the default configuration.
-     * @see https://www.tailwind-variants.org/docs/api-reference#config-optional
-     */
-    config?: C,
-  ): UvReturnType<V, S, B, C & RV, EV, ES, E>;
+    options: UvOptions<V, CV, DV, B, S, E, EV, ES>,
+  ): UvReturnType<V, S, B, EV, ES, E>;
 }
 
 // main function
 export declare const uv: Uv;
 
-export declare function createUv<T extends UvConfig['responsiveVariants']>(
-  config?: UvConfig & T,
-): CreateUv<T>;
-
-export declare const defaultConfig: UvConfig;
+export declare function createUv(): CreateUv;
 
 export type VariantProps<Component extends (...args: any) => any> = Omit<
   OmitUndefined<Parameters<Component>[0]>,
