@@ -138,7 +138,7 @@ export function uv(options) {
           : variantValue && variantValue[slotKey];
 
         if (value) {
-          result[result.length] = value;
+          result.push(value);
         }
       }
 
@@ -185,9 +185,10 @@ export function uv(options) {
               break;
             }
           } else {
-            const isBlankOrFalse = (v) => v == null || v === false;
-
-            if (isBlankOrFalse(value) && isBlankOrFalse(completePropsValue)) {
+            if (
+              (value == null || value === false)
+              && (completePropsValue == null || completePropsValue === false)
+            ) {
               continue;
             }
 
@@ -199,8 +200,13 @@ export function uv(options) {
         }
 
         if (isValid) {
-          uvClass && result.push(uvClass);
-          uvClassName && result.push(uvClassName);
+          if (uvClass) {
+            result.push(uvClass);
+          }
+
+          if (uvClassName) {
+            result.push(uvClassName);
+          }
         }
       }
 
@@ -237,24 +243,28 @@ export function uv(options) {
       }
 
       const result = {};
+      const completeProps = getCompleteProps(null, slotProps);
 
-      for (const {
-        slots = [],
-        class: slotClass,
-        className: slotClassName,
-        ...slotVariants
-      } of compoundSlots) {
+      for (let i = 0; i < compoundSlots.length; i++) {
+        const {
+          slots = [],
+          class: slotClass,
+          className: slotClassName,
+          ...slotVariants
+        } = compoundSlots[i];
+
         if (!isEmpty(slotVariants)) {
           let isValid = true;
 
           for (const key of Object.keys(slotVariants)) {
-            const completePropsValue = getCompleteProps(key, slotProps)[key];
+            const completePropsValue = completeProps[key];
+            const slotVariantValue = slotVariants[key];
 
             if (
               completePropsValue === undefined
-              || (Array.isArray(slotVariants[key])
-                ? !slotVariants[key].includes(completePropsValue)
-                : slotVariants[key] !== completePropsValue)
+              || (Array.isArray(slotVariantValue)
+                ? !slotVariantValue.includes(completePropsValue)
+                : slotVariantValue !== completePropsValue)
             ) {
               isValid = false;
               break;
