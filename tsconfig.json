@@ -6,7 +6,6 @@
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "types": ["vitest/globals"],
     "allowJs": false,
     "strict": true,
     "exactOptionalPropertyTypes": true,

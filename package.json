@@ -2,7 +2,7 @@
   "name": "unocss-variants",
   "type": "module",
   "version": "1.0.0-alpha.4",
-  "packageManager": "pnpm@10.13.1",
+  "packageManager": "pnpm@10.15.1",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,7 +15,7 @@
     "url": "https://github.com/praburangki/unocss-variants/issues"
   },
   "sideEffects": false,
-  "main": "dist/index.cjs",
+  "main": "dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
     "LICENSE",
@@ -29,25 +29,25 @@
     "release": "bumpp -r",
     "postpack": "clean-package restore",
     "test": "vitest",
-    "update:deps": "pnpx taze major -wIr"
+    "update:deps": "pnpx taze major -wIrl"
   },
   "dependencies": {
-    "@vinicunca/perkakas": "^1.7.0"
+    "@vinicunca/perkakas": "^1.7.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
-    "@types/node": "^24.1.0",
-    "@vinicunca/eslint-config": "^3.19.0",
-    "bumpp": "^10.2.0",
+    "@types/node": "^24.3.1",
+    "@vinicunca/eslint-config": "^3.25.0",
+    "bumpp": "^10.2.3",
     "clean-package": "^2.2.0",
-    "eslint": "^9.31.0",
-    "lint-staged": "^16.1.2",
-    "simple-git-hooks": "^2.13.0",
-    "taze": "^19.1.0",
-    "tsdown": "^0.13.0",
-    "typescript": "^5.8.3",
-    "unocss": "^66.3.3",
+    "eslint": "^9.35.0",
+    "lint-staged": "^16.1.6",
+    "simple-git-hooks": "^2.13.1",
+    "taze": "^19.6.0",
+    "tsdown": "^0.15.0",
+    "typescript": "^5.9.2",
+    "unocss": "^66.5.1",
     "vitest": "^3.2.4"
   },
   "commitlint": {

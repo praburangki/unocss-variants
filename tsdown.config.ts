@@ -6,7 +6,6 @@ export default defineConfig({
   ],
   shims: true,
   format: [
-    'cjs',
     'esm',
   ],
   target: 'es2019',
