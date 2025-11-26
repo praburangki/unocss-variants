@@ -15,7 +15,7 @@
     "url": "https://github.com/praburangki/unocss-variants/issues"
   },
   "sideEffects": false,
-  "main": "dist/index.js",
+  "main": "dist/index.mjs",
   "types": "./dist/index.d.ts",
   "files": [
     "LICENSE",
@@ -45,7 +45,7 @@
     "lint-staged": "^16.2.7",
     "simple-git-hooks": "^2.13.1",
     "taze": "^19.9.0",
-    "tsdown": "^0.16.6",
+    "tsdown": "^0.16.7",
     "typescript": "^5.9.3",
     "unocss": "^66.5.9",
     "vitest": "^4.0.13"
