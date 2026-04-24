@@ -189,11 +189,11 @@ export type UvReturnType<
   (props?: UvProps<V, S, EV, ES>): HasSlots<S, ES> extends true ? {
     [K in keyof (ES extends undefined ? {} : ES)]: (
       slotProps?: UvProps<V, S, EV, ES>,
-    ) => string;
+    ) => string | undefined;
   } & {
-    [K in keyof (S extends undefined ? {} : S)]: (slotProps?: UvProps<V, S, EV, ES>) => string;
+    [K in keyof (S extends undefined ? {} : S)]: (slotProps?: UvProps<V, S, EV, ES>) => string | undefined;
   } & {
-    [K in UvSlotsWithBase<{}, B>]: (slotProps?: UvProps<V, S, EV, ES>) => string;
+    [K in UvSlotsWithBase<{}, B>]: (slotProps?: UvProps<V, S, EV, ES>) => string | undefined;
   } : string;
 } & UvReturnProps<V, S, B, EV, ES, E>;
 
