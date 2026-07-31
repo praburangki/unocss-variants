@@ -2,17 +2,19 @@ import { defineConfig } from 'tsdown';
 
 export default defineConfig({
   entry: [
-    'src/index.js',
+    '../src/index.ts',
   ],
   shims: true,
   format: [
     'esm',
   ],
-  target: 'es2019',
+  target: 'node20',
   clean: true,
   minify: true,
   treeshake: true,
-  noExternal: [
-    '@vinicunca/perkakas',
-  ],
+  deps: {
+    neverBundle: [
+      '@vinicunca/perkakas',
+    ],
+  },
 });

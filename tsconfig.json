@@ -1,17 +1,20 @@
 {
-  "$schema": "http://json.schemastore.org/tsconfig",
-
+  "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
+    "types": ["node"],
     "allowJs": false,
     "strict": true,
     "exactOptionalPropertyTypes": true,
     "declaration": true,
+    "outDir": "./dist",
+    "stripInternal": true,
     "esModuleInterop": true,
     "isolatedModules": true
   },
-  "include": ["src", "test"]
+  "include": ["src/**/*.ts", ".config/**/*.ts"],
+  "exclude": ["node_modules", "dist", "src/__tests__/__types__", ".config/tsup.config.ts"]
 }
