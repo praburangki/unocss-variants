@@ -269,68 +269,112 @@ function createVariantResolver(resolved: ResolvedOptions): RuntimeComponent {
   }) as RuntimeComponent;
 }
 
+type SlotsResult = Record<string, (slotProps?: AnyRecord) => string | undefined>;
+type SlotComputer = (propsRef?: AnyRecord, slotProps?: AnyRecord) => string | undefined;
+
+function hasSlotVariantOverride(slotProps: AnyRecord): boolean {
+  for (const key of Object.keys(slotProps)) {
+    if (key === 'class' || key === 'className') {
+      continue;
+    }
+    if (slotProps[key] !== undefined) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function createSlotsResolver(resolved: ResolvedOptions): RuntimeComponent {
   const { defaultVariants, deferredError, slots } = resolved;
-  let currentProps: AnyRecord | undefined;
-  let slotsFns: Record<string, (slotProps?: AnyRecord) => string | undefined> | null = null;
+
+  let keys: Array<string> | null = null;
+  let slotComputers: Array<SlotComputer> | null = null;
+
+  const ensureCompiled = () => {
+    if (keys !== null) {
+      return;
+    }
+
+    if (
+      resolved.compiledVariants === null
+      || resolved.compiledCompoundVariants === null
+      || resolved.compiledCompoundSlots === null
+      || resolved.compiledCompoundSlotsBySlot === null
+      || resolved.slotKeys === null
+    ) {
+      compileResolvedOptions(resolved);
+    }
+
+    const variants = resolved.compiledVariants!;
+    const compoundVariants = resolved.compiledCompoundVariants!;
+    const compoundSlots = resolved.compiledCompoundSlots!;
+    const compoundSlotsBySlot = resolved.compiledCompoundSlotsBySlot!;
+    const slotKeys = resolved.slotKeys!;
+    const hasCompounds = compoundVariants.length > 0 || compoundSlots.length > 0;
+    const computers: Array<SlotComputer> = Array.from({ length: slotKeys.length });
+
+    for (let i = 0; i < slotKeys.length; i++) {
+      const slotKey = slotKeys[i];
+      const compoundSlotsForKey = compoundSlotsBySlot[slotKey] ?? EMPTY_ARRAY;
+
+      computers[i] = (propsRef, slotProps) => {
+        const completeProps = hasCompounds
+          ? getCompleteProps(defaultVariants, propsRef, slotProps)
+          : undefined;
+        const compoundVariantClasses = completeProps
+          ? getCompoundVariantClassesBySlot(slotKey, compoundVariants, completeProps)
+          : undefined;
+        const compoundSlotClasses = completeProps
+          ? getCompoundSlotClasses(compoundSlotsForKey, completeProps)
+          : undefined;
+
+        return cx(
+          slots[slotKey],
+          getVariantClassNamesBySlot(slotKey, variants, defaultVariants, propsRef, slotProps),
+          compoundVariantClasses,
+          compoundSlotClasses,
+        );
+      };
+    }
+
+    keys = slotKeys;
+    slotComputers = computers;
+  };
+
+  const createSlotsResult = (props?: AnyRecord): SlotsResult => {
+    const slotKeys = keys!;
+    const computers = slotComputers!;
+    const result: SlotsResult = {};
+
+    for (let i = 0; i < slotKeys.length; i++) {
+      const compute = computers[i];
+      // Capture parent props for this result instance (not shared mutable state).
+      const core = compute(props);
+
+      result[slotKeys[i]] = (slotProps) => {
+        if (slotProps == null) {
+          return core;
+        }
+        if (!hasSlotVariantOverride(slotProps)) {
+          return applyOverride(core, slotProps);
+        }
+
+        return applyOverride(compute(props, slotProps), slotProps);
+      };
+    }
+
+    return result;
+  };
 
   return ((props?: AnyRecord): RuntimeResult => {
     if (deferredError) {
       throw deferredError;
     }
 
-    if (slotsFns === null) {
-      if (
-        resolved.compiledVariants === null
-        || resolved.compiledCompoundVariants === null
-        || resolved.compiledCompoundSlots === null
-        || resolved.compiledCompoundSlotsBySlot === null
-        || resolved.slotKeys === null
-      ) {
-        compileResolvedOptions(resolved);
-      }
+    ensureCompiled();
 
-      const variants = resolved.compiledVariants!;
-      const compoundVariants = resolved.compiledCompoundVariants!;
-      const compoundSlots = resolved.compiledCompoundSlots!;
-      const compoundSlotsBySlot = resolved.compiledCompoundSlotsBySlot!;
-      const keys = resolved.slotKeys!;
-      const hasCompounds = compoundVariants.length > 0 || compoundSlots.length > 0;
-      const nextSlotsFns: Record<string, (slotProps?: AnyRecord) => string | undefined> = {};
-
-      for (let i = 0; i < keys.length; i++) {
-        const slotKey = keys[i];
-        const compoundSlotsForKey = compoundSlotsBySlot[slotKey] ?? EMPTY_ARRAY;
-
-        const computeCore = (propsRef: AnyRecord | undefined, slotProps?: AnyRecord) => {
-          const completeProps = hasCompounds
-            ? getCompleteProps(defaultVariants, propsRef, slotProps)
-            : undefined;
-          const compoundVariantClasses = completeProps
-            ? getCompoundVariantClassesBySlot(slotKey, compoundVariants, completeProps)
-            : undefined;
-          const compoundSlotClasses = completeProps
-            ? getCompoundSlotClasses(compoundSlotsForKey, completeProps)
-            : undefined;
-
-          return cx(
-            slots[slotKey],
-            getVariantClassNamesBySlot(slotKey, variants, defaultVariants, propsRef, slotProps),
-            compoundVariantClasses,
-            compoundSlotClasses,
-          );
-        };
-
-        nextSlotsFns[slotKey] = (slotProps) =>
-          applyOverride(computeCore(currentProps, slotProps), slotProps);
-      }
-
-      slotsFns = nextSlotsFns;
-    }
-
-    currentProps = props;
-
-    return slotsFns;
+    return createSlotsResult(props);
   }) as RuntimeComponent;
 }
 
