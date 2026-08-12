@@ -2,6 +2,8 @@ import type { Uv } from './types';
 import { runtimeUv } from './internal/uv';
 import { cx as runtimeCx } from './utils';
 
+export type * from './types';
+
 /**
  * Creates a variant-aware component function with UnoCSS classes.
  * Supports variants, slots, compound variants, and component composition.
