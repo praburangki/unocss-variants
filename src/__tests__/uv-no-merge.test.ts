@@ -91,7 +91,7 @@ describe('uv (no class merging)', () => {
     );
   });
 
-  it('supports non-Tailwind classes', () => {
+  it('supports non-UnoCSS classes', () => {
     const button = uv({
       base: 'button',
       variants: {
