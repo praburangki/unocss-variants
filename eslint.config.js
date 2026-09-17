@@ -15,4 +15,9 @@ export default vinicuncaESLint(
       }],
     },
   },
+  {
+    rules: {
+      'pnpm/yaml-enforce-settings': 'off',
+    },
+  },
 );
