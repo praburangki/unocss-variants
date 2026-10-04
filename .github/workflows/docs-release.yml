@@ -1,0 +1,21 @@
+name: Sync documentation
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  notify-docs:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.DOCS_DISPATCH_TOKEN }}
+    steps:
+      - name: Request tagged docs import
+        if: env.GH_TOKEN != ''
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          jq -n --arg package unocss-variants --arg tag "$RELEASE_TAG" \
+            '{event_type: "docs-package-release", client_payload: {package: $package, tag: $tag}}' \
+            | gh api repos/vinicunca/docs/dispatches --method POST --input -
