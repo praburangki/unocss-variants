@@ -13,8 +13,9 @@
     "outDir": "./dist",
     "stripInternal": true,
     "esModuleInterop": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "skipLibCheck": true
   },
   "include": ["src/**/*.ts", ".config/**/*.ts"],
-  "exclude": ["node_modules", "dist", "src/__tests__/__types__", ".config/tsup.config.ts"]
+  "exclude": ["node_modules", "dist"]
 }

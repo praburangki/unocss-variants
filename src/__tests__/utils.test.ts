@@ -15,7 +15,6 @@ describe('falsyToString', () => {
   it('returns the original value when given a value other than 0 or a boolean', () => {
     expect(falsyToString('test')).toBe('test');
     expect(falsyToString(4)).toBe(4);
-    // eslint-disable-next-line sonar/prefer-specific-assertions
     expect(falsyToString(null)).toBe(null);
   });
 });

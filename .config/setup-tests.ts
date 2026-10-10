@@ -27,12 +27,10 @@ expect.extend({
   },
 });
 
+// `AsymmetricMatchersContaining` extends `Matchers`, so this covers both
 declare module 'vitest' {
-  interface Assertion<T = any> {
-    toHaveClass: (expected: string | Array<string>) => T;
-  }
-
-  interface AsymmetricMatchersContaining {
-    toHaveClass: (expected: string | Array<string>) => void;
+  // eslint-disable-next-line ts/no-unused-vars, unused-imports/no-unused-vars -- Augmentations must repeat vitest's type parameters exactly
+  interface Matchers<R extends void | Promise<void> = void | Promise<void>, T = unknown> {
+    toHaveClass: (expected: string | Array<string>) => R;
   }
 }

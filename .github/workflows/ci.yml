@@ -1,0 +1,18 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # Called by release.yml so a tag only publishes after these checks pass
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    uses: vinicunca/workflows/.github/workflows/unit-test.yml@v1
+    with:
+      os-matrix: '"ubuntu-latest"'
+      node-versions: '22,24'
