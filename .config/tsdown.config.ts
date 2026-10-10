@@ -4,6 +4,8 @@ export default defineConfig({
   entry: [
     '../src/index.ts',
   ],
+  // Paths resolve relative to this config file, so without this the build lands in `.config/dist`
+  outDir: '../dist',
   shims: true,
   format: [
     'esm',

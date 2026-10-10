@@ -16,7 +16,7 @@
   },
   "sideEffects": false,
   "main": "dist/index.mjs",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/index.d.mts",
   "files": [
     "LICENSE",
     "README.md",
