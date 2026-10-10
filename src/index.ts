@@ -7,7 +7,7 @@ export type * from './types';
 /**
  * Creates a variant-aware component function with UnoCSS classes.
  * Supports variants, slots, compound variants, and component composition.
- * Conflicting classes are NOT merged — resolution is left to the CSS cascade.
+ * Conflicting classes are NOT merged, resolution is left to the CSS cascade.
  */
 export const uv = runtimeUv as Uv;
 

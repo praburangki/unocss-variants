@@ -69,7 +69,7 @@ describe('uv slots independence (#304)', () => {
     expect(viaDefault.root()).not.toHaveClass(['root-lg']);
   });
 
-  // lightsound — issue comment (HeroUI Chip + useMemo + className every render)
+  // lightsound: issue comment (HeroUI Chip + useMemo + className every render)
   it('held slots survive sibling mounts when re-applying className', () => {
     const chip = uv(chipConfig);
 

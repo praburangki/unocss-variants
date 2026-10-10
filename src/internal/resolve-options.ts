@@ -88,6 +88,7 @@ function indexCompoundSlotsBySlot(compiledCompoundSlots: Array<CompiledCompoundS
   return index;
 }
 
+// eslint-disable-next-line sonarjs/cognitive-complexity
 export function resolveOptions(options: AnyRecord): ResolvedOptions {
   const {
     extend = null,
